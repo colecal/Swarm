@@ -11,15 +11,34 @@ const services = [
   'Not sure yet — need guidance',
 ]
 
+const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID
+
 export default function ContactPage() {
   const [form, setForm]     = useState({ name: '', email: '', company: '', service: '', message: '' })
   const [sent, setSent]     = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError]   = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => { setLoading(false); setSent(true) }, 1200)
+    setError(false)
+    try {
+      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (res.ok) {
+        setSent(true)
+      } else {
+        setError(true)
+      }
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -189,6 +208,12 @@ export default function ContactPage() {
                       className="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(0,212,255,0.15)] text-white placeholder-slate-600 text-sm px-4 py-3 outline-none focus:border-[rgba(0,212,255,0.5)] transition-all duration-300 font-inter resize-none"
                     />
                   </div>
+
+                  {error && (
+                    <p className="text-red-400 text-xs font-orbitron tracking-wide text-center">
+                      Something went wrong. Please try again or email us directly.
+                    </p>
+                  )}
 
                   <button
                     type="submit"

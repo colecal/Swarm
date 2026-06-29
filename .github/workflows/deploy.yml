@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["claude/repo-reset-history-7j8zqk", "main"]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -32,6 +32,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_FORMSPREE_ID: ${{ secrets.FORMSPREE_ID }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
